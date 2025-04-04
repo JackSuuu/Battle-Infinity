@@ -231,8 +231,8 @@ loadSprite("shop", "assets/shop_anim.png", {
 loadSprite("fence", "assets/fence_1.png")
 loadSprite("sign", "assets/sign.png")
 
-loadSprite("idle-player1", "assets/NightBorne/NightBorne.png", {
-    sliceX: 23, sliceY: 5, anims: { "idle": {from: 0, to: 8, speed: 12, loop: true}}
+loadSprite("idle-player1", "assets/MasterSu/IDLE.png", {
+    sliceX: 10, sliceY: 1, anims: { "idle": {from: 0, to: 9, speed: 12, loop: true}}
 })
 loadSprite("jump-player1", "assets/MasterSu/IDLE.png", {
     sliceX: 10, sliceY: 1, anims: { "jump": { from: 0, to: 9, speed: 12, loop: true}}
