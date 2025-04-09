@@ -1,5 +1,5 @@
-# Punk_Battle_web
+# Punk_Battle_refine
 
-refine punk battle game, implemented in `kaboom.js` javascript library.
+refine version punk battle game, implemented in `kaboom.js` javascript library.
 
 ![](game.png)
