@@ -5,181 +5,11 @@ kaboom({
     debug: false
 })
 
-scene("home", () => {
-    // Background
-    const bg = add([
-        sprite("background"),
-        scale(4)
-    ]);
-
-    bg.add([
-        sprite("trees"),
-    ]);
-
-    // Title
-    add([
-        text("Battle V", { 
-            size: 64,
-            font: "sinko",
-            styles: {
-                outline: 4,
-                outlineColor: rgb(0, 0, 0)
-            }
-        }),
-        pos(center().x, 100),
-        anchor("center"),
-        color(255, 255, 255)
-    ]);
-
-    // Start Button
-    const startBtn = add([
-        rect(240, 60, { radius: 8 }),
-        pos(center().x, 300),
-        area(),
-        anchor("center"),
-        color(100, 200, 100),
-        "btn"
-    ]);
-
-    startBtn.add([
-        text("Start Game", { 
-            size: 32,
-            font: "sinko"
-        }),
-        anchor("center"),
-        color(0, 0, 0)
-    ]);
-
-    // Instructions Button
-    const instructionsBtn = add([
-        rect(240, 60, { radius: 8 }),
-        pos(center().x, 400),
-        area(),
-        anchor("center"),
-        color(200, 100, 100),
-        "btn"
-    ]);
-
-    instructionsBtn.add([
-        text("How to Play", { 
-            size: 32,
-            font: "sinko"
-        }),
-        anchor("center"),
-        color(0, 0, 0)
-    ]);
-
-    // Button hover effects
-    onHover("btn", (b) => {
-        b.color = b.color.lighten(20);
-        b.scale = vec2(1.05);
-    });
-
-    onHoverEnd("btn", (b) => {
-        b.color = b.color.darken(20);
-        b.scale = vec2(1);
-    });
-
-    // Button click handlers
-    onClick("btn", (b) => {
-        if (b === startBtn) {
-            go("fight");
-        } else {
-            // Darken background
-            const overlay = add([
-                rect(width(), height()),
-                color(0, 0, 0),
-                opacity(0.7),
-                fixed(),
-                z(100),
-                "instructions"
-            ]);
-
-            // Instructions panel
-            const panel = add([
-                rect(800, 500, { radius: 12 }),
-                pos(center().x, center().y),
-                anchor("center"),
-                color(20, 20, 20),
-                outline(4, WHITE),
-                fixed(),
-                z(101),
-                "instructions"
-            ]);
-
-            panel.add([
-                text("How to Play", { 
-                    size: 48,
-                    font: "sinko",
-                    styles: { outline: 3 }
-                }),
-                pos(0, -200),
-                anchor("center"),
-                color(255, 255, 255)
-            ]);
-
-            const content = panel.add([
-                text(
-                    "Player 1 Controls:\n" +
-                    "A/D - Move Left/Right\n" +
-                    "W - Jump\n" +
-                    "Space - Attack\n\n" +
-                    "Player 2 Controls:\n" +
-                    "←/→ - Move Left/Right\n" +
-                    "↑ - Jump\n" +
-                    "↓ - Attack\n\n" +
-                    "Game Rules:\n" +
-                    "- First to reduce opponent's health to 0 wins!\n" +
-                    "- 60 second time limit\n" +
-                    "- Best of 3 rounds wins the match!",
-                    {
-                        size: 28,
-                        font: "sinko",
-                        width: 700,
-                        lineSpacing: 15,
-                        styles: {
-                            outline: 2
-                        }
-                    }
-                ),
-                pos(0, -0),
-                anchor("center"),
-                color(255, 255, 255)
-            ]);
-
-            // Close button
-            const closeBtn = panel.add([
-                rect(120, 40, { radius: 6 }),
-                pos(0, 200),
-                anchor("center"),
-                area(),
-                color(200, 50, 50),
-                "closeBtn"
-            ]);
-
-            closeBtn.add([
-                text("Close", { size: 24 }),
-                anchor("center"),
-                color(255, 255, 255)
-            ]);
-
-            onClick("closeBtn", () => {
-                destroyAll("instructions");
-            });
-
-            onClick(overlay, () => {
-                destroyAll("instructions");
-            });
-        }
-    });
-
-    // Start with any key
-    onKeyPress("enter", () => go("fight"));
-});
-
-
-loadSprite("background", "assets/oak_woods_v1.0/background/background_layer_1.png")
-loadSprite("trees", "assets/oak_woods_v1.0/background/background_layer_2.png")
+// LOAD ALL SPRITE SHEET SECTION
+// Load background sprite
+loadSprite("background", "assets/background/cyberpunk-street-files/Assets/Version 2/Layers/foreground.png")
+loadSprite("back_building", "assets/background/cyberpunk-street-files/Assets/Version 2/Layers/back.png")
+loadSprite("middle", "assets/background/cyberpunk-street-files/Assets/Version 2/Layers/middle.png")
 loadSpriteAtlas("assets/oak_woods_tileset.png", {
     "ground-golden": {
         "x": 16,
@@ -231,20 +61,20 @@ loadSprite("shop", "assets/shop_anim.png", {
 loadSprite("fence", "assets/fence_1.png")
 loadSprite("sign", "assets/sign.png")
 
-loadSprite("idle-player1", "assets/MasterSu/IDLE.png", {
-    sliceX: 10, sliceY: 1, anims: { "idle": {from: 0, to: 9, speed: 12, loop: true}}
+loadSprite("idle-player1", "assets/TheSword/idle-player1.png", {
+    sliceX: 8, sliceY: 1, anims: { "idle": {from: 0, to: 7, speed: 12, loop: true}}
 })
-loadSprite("jump-player1", "assets/MasterSu/IDLE.png", {
-    sliceX: 10, sliceY: 1, anims: { "jump": { from: 0, to: 9, speed: 12, loop: true}}
+loadSprite("jump-player1", "assets/TheSword/jump-player1.png", {
+    sliceX: 2, sliceY: 1, anims: { "jump": { from: 0, to: 1, speed: 12, loop: true}}
 })
-loadSprite("attack-player1", "assets/MasterSu/ATTACK.png", {
-    sliceX: 7, sliceY: 1, anims: { "attack": { from: 0, to: 6, speed: 18}}
+loadSprite("attack-player1", "assets/TheSword/attack-player1.png", {
+    sliceX: 6, sliceY: 1, anims: { "attack": { from: 0, to: 5, speed: 18}}
 })
-loadSprite("run-player1", "assets/MasterSu/RUN.png", {
-    sliceX: 16, sliceY: 1, anims: { "run": { from: 0, to: 15, speed: 18}}
+loadSprite("run-player1", "assets/TheSword/run-player1.png", {
+    sliceX: 8, sliceY: 1, anims: { "run": { from: 0, to: 7, speed: 18}}
 })
-loadSprite("death-player1", "assets/MasterSu/HURT.png", {
-    sliceX: 4, sliceY: 1, anims: { "death": { from: 0, to: 3, speed: 10}}
+loadSprite("death-player1", "assets/TheSword/death-player1.png", {
+    sliceX: 6, sliceY: 1, anims: { "death": { from: 0, to: 5, speed: 10}}
 })
 
 loadSprite("idle-player2", "assets/鬼剑士/idle-player2.png", {
@@ -263,14 +93,316 @@ loadSprite("death-player2", "assets/鬼剑士/death-player2.png", {
     sliceX: 7, sliceY: 1, anims: { "death": { from: 0, to: 6, speed: 10}}
 })
 
-scene("fight", () => {
+// Store character data globally
+let characterData = [
+    {
+        id: "player1",
+        name: "TheSword",
+        sprites: {
+            idle: "idle-player1",
+            run: "run-player1",
+            jump: "jump-player1",
+            attack: "attack-player1",
+            death: "death-player1"
+        }
+    },
+    {
+        id: "player2",
+        name: "GhostSword",
+        sprites: {
+            idle: "idle-player2",
+            run: "run-player2",
+            jump: "jump-player2",
+            attack: "attack-player2",
+            death: "death-player2"
+        }
+    }
+];
+
+let isLoading = true; // Track loading state
+
+// Load additional characters from JSON
+async function loadCharacters() {
+    try {
+        const response = await fetch("characters.json");
+        if (!response.ok) throw new Error(`Failed to load characters.json: ${response.status}`);
+        const characters = await response.json();
+
+        for (const char of characters) {
+            for (const [state, sprite] of Object.entries(char.sprites)) {
+                const spriteName = `${state}-${char.id}`;
+                loadSprite(spriteName, sprite.path, {
+                    sliceX: sprite.sliceX,
+                    sliceY: sprite.sliceY,
+                    anims: sprite.anims
+                });
+                // Update char.sprites to use the correct sprite name
+                char.sprites[state] = spriteName;
+            }
+        }
+        return characters;
+    } catch (error) {
+        console.error("Error loading characters:", error);
+        return [];
+    }
+}
+
+// Load JSON and append new characters
+loadCharacters().then(newCharacters => {
+    characterData = characterData.concat(newCharacters);
+    isLoading = false;
+    console.log("Characters loaded:", characterData);
+});
+
+// SCENE HOME
+scene("home", () => {
+
+    // In the "home" scene
+    const canvas = document.querySelector('canvas');
+
+    // Reset cursor when mouse leaves the canvas
+    canvas.addEventListener('mouseleave', () => {
+        canvas.style.cursor = 'default';
+    });
+
+    // Update hover effects to include cursor change
+    onHover("btn", (b) => {
+        canvas.style.cursor = 'pointer';  // Change to hand cursor
+        b.color = b.color.lighten(20);    // Existing color effect
+        b.scale = vec2(1.05);             // Existing scale effect
+    });
+
+    onHoverEnd("btn", (b) => {
+        canvas.style.cursor = 'default';  // Reset to default cursor
+        b.color = b.color.darken(20);     // Existing color reset
+        b.scale = vec2(1);                // Existing scale reset
+    });
+
+    // Background
     const background = add([
-        sprite("background"),
-        scale(4)
+        sprite("back_building"),
+        scale(3),
+        pos(0, 0),
+        z(0), // Lower z-index (rendered first)
     ])
 
     background.add([
-        sprite("trees"),
+        sprite("back_building"),
+        scale(3),
+        pos(100, 0),
+        z(0),
+    ])
+
+    background.add([
+        sprite("background"),
+        z(2), // Lower z-index (rendered first)
+    ])
+
+    // shop.play("default")
+
+    background.add([
+        sprite("middle"),
+    ])
+
+    // Add a yellow background rectangle
+    const textWidth = 600; // Approximate width for "Punk Battle Refined" at size 90
+    const textHeight = 100; // Approximate height for the text
+    const padding = 20; // Extra space around the text for the background
+
+    const backgroundRect = add([
+        rect(textWidth + padding * 10, textHeight + padding * 2, { radius: 8 }), // Rectangle with rounded corners
+        pos(center().x, 150),                                                  // Same position as text
+        anchor("center"),                                                     // Center the rectangle
+        color(255, 255, 0),
+        z(0),                                                                 // Lower layer (behind text)
+    ]);
+
+    // Title
+    add([
+        text("Punk Battle Refined", { 
+            size: 90,
+            font: "digital",
+            styles: {
+                outline: 4,
+                outlineColor: rgb(255, 255, 255),
+                stroke: { width: 4, color: rgb(0, 0, 0) },
+            }
+        }),
+        pos(center().x, 150),
+        anchor("center"),
+        color(0, 204, 255),
+        z(1)
+    ]);
+
+    // Start Button
+    const startBtn = add([
+        rect(240, 60, { radius: 8 }),
+        pos(center().x, 300),
+        area(),
+        anchor("center"),
+        color(255, 255, 0),
+        "btn"
+    ]);
+
+    startBtn.add([
+        text("Start Game", { 
+            size: 32,
+            font: "sinko"
+        }),
+        anchor("center"),
+        color(0, 204, 255)
+    ]);
+
+    // Instructions Button
+    const instructionsBtn = add([
+        rect(240, 60, { radius: 8 }),
+        pos(center().x, 400),
+        area(),
+        anchor("center"),
+        color(255, 255, 0),
+        "btn"
+    ]);
+
+    instructionsBtn.add([
+        text("How to Play", { 
+            size: 32,
+            font: "sinko"
+        }),
+        anchor("center"),
+        color(255, 0, 255)
+    ]);
+
+    // Button hover effects
+    onHover("btn", (b) => {
+        b.color = b.color.lighten(20);
+        b.scale = vec2(1.05);
+    });
+
+    onHoverEnd("btn", (b) => {
+        b.color = b.color.darken(20);
+        b.scale = vec2(1);
+    });
+
+    // Button click handlers
+    onClick("btn", (b) => {
+        if (b === startBtn) {
+            go("character_select");
+        } else {
+            // Darken background
+            const overlay = add([
+                rect(width(), height()),
+                color(0, 0, 0),
+                opacity(0.7),
+                fixed(),
+                z(100),
+                "instructions"
+            ]);
+
+            // Instructions panel
+            const panel = add([
+                rect(800, 500, { radius: 12 }),
+                pos(center().x, center().y),
+                anchor("center"),
+                color(20, 20, 20),
+                outline(4, WHITE),
+                fixed(),
+                z(101),
+                "instructions"
+            ]);
+
+            panel.add([
+                text("How to Play", { 
+                    size: 48,
+                    font: "sinko",
+                    styles: { outline: 3 }
+                }),
+                pos(0, -200),
+                anchor("center"),
+                color(255, 255, 255)
+            ]);
+
+            panel.add([
+                text(
+                    "Player 1 Controls:\n" +
+                    "A/D - Move Left/Right\n" +
+                    "W - Jump\n" +
+                    "Space - Attack\n\n" +
+                    "Player 2 Controls:\n" +
+                    "←/→ - Move Left/Right\n" +
+                    "↑ - Jump\n" +
+                    "↓ - Attack\n\n" +
+                    "Game Rules:\n" +
+                    "- First to reduce opponent's health to 0 wins!\n" +
+                    "- 60 second time limit\n" +
+                    "- Best of 3 rounds wins the match!",
+                    {
+                        size: 14,
+                        font: "sinko",
+                        width: 700,
+                        lineSpacing: 15,
+                        styles: {
+                            outline: 2
+                        }
+                    }
+                ),
+                pos(0, -0),
+                anchor("center"),
+                color(255, 255, 255)
+            ]);
+
+            // Close button (avoid redeclaring closeBtn)
+            const closeButton = panel.add([
+                rect(120, 40, { radius: 6 }),
+                pos(0, 200),
+                anchor("center"),
+                area(),
+                color(200, 50, 50),
+                z(102), // Optional: ensures it’s above other panel elements,
+                "btn"                // Add this tag
+            ]);
+            
+            closeButton.add([
+                text("Close", { size: 24 }),
+                anchor("center"),
+                color(255, 255, 255)
+            ]);
+            
+            closeButton.onClick(() => {
+                destroyAll("instructions"); // Destroy panel and overlay
+            });
+        }
+    });
+
+    // Start with any key
+    onKeyPress("enter", () => go("character_select"));
+});
+
+// SCENE FIGHT
+scene("fight", () => {
+    // Background
+    const background = add([
+        sprite("back_building"),
+        scale(3),
+        pos(0, 0),
+        z(0), // Lower z-index (rendered first)
+    ])
+
+    background.add([
+        sprite("back_building"),
+        scale(3),
+        pos(100, 0),
+        z(0),
+    ])
+
+    background.add([
+        sprite("background"),
+        z(2), // Lower z-index (rendered first)
+    ])
+
+    // shop.play("default")
+
+    background.add([
+        sprite("middle"),
     ])
 
     const groundTiles = addLevel([
@@ -302,13 +434,6 @@ scene("fight", () => {
     
     groundTiles.use(scale(4))
 
-    const shop = background.add([
-        sprite("shop"),
-        pos(170, 15),
-    ])
-
-    shop.play("default")
-
    // left invisible wall
    add([
     rect(16, 720),
@@ -325,20 +450,20 @@ scene("fight", () => {
     pos(1280,0)
    ])
 
-   background.add([
-    sprite("fence"),
-    pos(85, 125)
-   ])
+//    background.add([
+//     sprite("fence"),
+//     pos(85, 125)
+//    ])
 
-   background.add([
-    sprite("fence"),
-    pos(10, 125)
-   ])
+//    background.add([
+//     sprite("fence"),
+//     pos(10, 125)
+//    ])
 
-   background.add([
-    sprite("sign"),
-    pos(290, 115)
-   ])
+//    background.add([
+//     sprite("sign"),
+//     pos(290, 115)
+//    ])
 
     function makePlayer(posX, posY, width, height, scaleFactor, id) {
         return add([
@@ -363,7 +488,7 @@ scene("fight", () => {
 
     setGravity(1200)
 
-    const player1 = makePlayer(200, 70, 16, 60, 4, "player1")
+    const player1 = makePlayer(200, 150, 16, 60, 4, "player1")
     player1.use(sprite(player1.sprites.idle))
     player1.play("idle")
 
@@ -547,6 +672,14 @@ scene("fight", () => {
     onKeyDown("enter", () => gameOver ? go("fight") : null)
 
     function declareWinner(winningText, player1, player2) {
+        const whiteOverlay = add([
+            rect(width(), height()),
+            color(255, 255, 255),
+            opacity(0.3), // Adjust the opacity to control the intensity of the white filter
+            fixed(),
+            z(0), // Ensure it's behind other elements
+        ]);
+
         if (player1.health > 0 && player2.health > 0
             || player1.health === 0 && player2.health === 0) {
             winningText.text = "Tie!"
@@ -554,11 +687,48 @@ scene("fight", () => {
             winningText.text = "Player 1 won!"
             player2.use(sprite(player2.sprites.death))
             player2.play("death")
+            
         } else {
             winningText.text = "Player 2 won!"
             player1.use(sprite(player1.sprites.death))
             player1.play("death")
         }
+
+        // Add "Back to Home" button
+        const backToHomeBtn = add([
+            rect(240, 60, { radius: 8 }),           // Button shape with rounded corners
+            pos(center().x, center().y + 100),     // Position below winning text
+            area(),                                // Enable click detection
+            anchor("center"),                      // Center the button
+            color(100, 100, 200),                  // Blue-ish color
+            "btn"                                  // Tag for hover effects
+        ]);
+
+        backToHomeBtn.add([
+            text("Back to Home", { size: 32, font: "sinko" }), // Button label
+            anchor("center"),                                  // Center text in button
+            color(0, 0, 0)                                     // Black text
+        ]);
+
+        backToHomeBtn.onClick(() => go("home"));              // Navigate to "home" scene on click
+
+        // Add "Restart" button
+        const restartBtn = add([
+            rect(240, 60, { radius: 8 }),           // Button shape with rounded corners
+            pos(center().x, center().y + 200),     // Position further below
+            area(),                                // Enable click detection
+            anchor("center"),                      // Center the button
+            color(100, 200, 100),                  // Green-ish color
+            "btn"                                  // Tag for hover effects
+        ]);
+
+        restartBtn.add([
+            text("Restart", { size: 32, font: "sinko" }), // Button label
+            anchor("center"),                             // Center text in button
+            color(0, 0, 0)                                // Black text
+        ]);
+
+        restartBtn.onClick(() => go("fight"));           // Restart "fight" scene on click
     }
 
     const countInterval = setInterval(() => {
@@ -641,10 +811,156 @@ scene("fight", () => {
     })
 })
 
-// Change the initial scene to home
-go("home");
+scene("character_select", () => {
+    // Background
+    const background = add([
+        sprite("back_building"),
+        scale(3),
+        pos(0, 0),
+        z(0), // Lower z-index (rendered first)
+    ])
 
-go("fight")
+    background.add([
+        sprite("back_building"),
+        scale(3),
+        pos(100, 0),
+        z(0),
+    ])
+
+    background.add([
+        sprite("background"),
+        z(2), // Lower z-index (rendered first)
+    ])
+
+    // shop.play("default")
+
+    background.add([
+        sprite("middle"),
+    ])
+
+    // Title
+    const textWidth = 600; // Approximate width for "Punk Battle Refined" at size 90
+    const textHeight = 100; // Approximate height for the text
+    const padding = 30; // Extra space around the text for the background
+
+    const backgroundRect = add([
+        rect(textWidth + padding * 10, textHeight + padding * 2, { radius: 8 }), // Rectangle with rounded corners
+        pos(center().x, 50),                                                  // Same position as text
+        anchor("center"),                                                     // Center the rectangle
+        color(255, 255, 0),
+        z(0),                                                                 // Lower layer (behind text)
+    ]);
+
+    // Title
+    add([
+        text("Select Your Character", { 
+            size: 64,
+            font: "digital",
+            styles: {
+                outline: 4,
+                outlineColor: rgb(255, 255, 255),
+                stroke: { width: 4, color: rgb(0, 0, 0) },
+            }
+        }),
+        pos(center().x, 50),
+        anchor("center"),
+        color(0, 204, 255),
+        z(2)
+    ]);
+
+    // Player selection state
+    let player1Choice = null;
+    let player2Choice = null;
+
+    // Display characters in a grid
+    const charWidth = 200;
+    const charHeight = 200;
+    const startX = center().x - (characterData.length * charWidth) / 2 + charWidth / 2;
+    const startY = 200;
+
+    characterData.forEach((char, index) => {
+        const charBox = add([
+            rect(charWidth - 20, charHeight - 20, { radius: 8 }),
+            pos(startX + index * charWidth, startY),
+            anchor("center"),
+            color(50, 50, 50),
+            area(),
+            "charBox",
+            z(3)
+        ]);
+
+        // Character sprite
+        const spriteObj = charBox.add([
+            sprite(char.sprites.idle),
+            scale(2),
+            anchor("center"),
+            z(4)
+        ]);
+        spriteObj.play("idle");
+
+        // Character name
+        charBox.add([
+            text(char.name, { size: 24, font: "sinko" }),
+            pos(0, charHeight / 2 - 20),
+            anchor("center"),
+            color(255, 255, 255),
+            z(4)
+        ]);
+
+        // Click handler for selection
+        charBox.onClick(() => {
+            if (!player1Choice) {
+                player1Choice = char;
+                charBox.color = rgb(100, 100, 200); // Blue for Player 1
+            } else if (!player2Choice && char !== player1Choice) {
+                player2Choice = char;
+                charBox.color = rgb(200, 100, 100); // Red for Player 2
+                // Both players have chosen, proceed to fight
+                go("fight", { player1: player1Choice, player2: player2Choice });
+            }
+        });
+
+        // Hover effects
+        charBox.onHover(() => {
+            charBox.scale = vec2(1.05);
+            canvas.style.cursor = "pointer";
+        });
+        charBox.onHoverEnd(() => {
+            charBox.scale = vec2(1);
+            canvas.style.cursor = "default";
+        });
+    });
+
+    // Instructions
+    add([
+        text("Player 1: Choose first\nPlayer 2: Choose second", { size: 24, font: "sinko" }),
+        pos(center().x, 500),
+        anchor("center"),
+        color(255, 255, 255),
+        z(3)
+    ]);
+
+    // Back button
+    const backBtn = add([
+        rect(240, 60, { radius: 8 }),
+        pos(center().x, 600),
+        area(),
+        anchor("center"),
+        color(200, 50, 50),
+        "btn",
+        z(3)
+    ]);
+
+    backBtn.add([
+        text("Back", { size: 32, font: "sinko" }),
+        anchor("center"),
+        color(0, 0, 0),
+        z(4)
+    ]);
+
+    backBtn.onClick(() => go("home"));
+});
+
 
 // Change the initial scene to home
 go("home");
