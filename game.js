@@ -849,7 +849,7 @@ scene("fight", (params = { player1: characterData[0], player2: characterData[1] 
     if (useAIControl) {
         // Variables to track timing
         let lastAttackTime = 0;
-        const attackCooldown = 0.5; // 1 second between attacks
+        const attackCooldown = 0.1; // 0.1 second between attacks
         let lastActionTime = 0;
         const actionDelay = 0.1; // 100ms delay between actions
 
@@ -877,7 +877,7 @@ scene("fight", (params = { player1: characterData[0], player2: characterData[1] 
             if (aiAction.jump) makeJump(player2);
 
             // Handle attack with cooldown and probability
-            if (aiAction.attack && currentTime - lastAttackTime > attackCooldown && Math.random() < 0.3) {
+            if (aiAction.attack && currentTime - lastAttackTime > attackCooldown && Math.random() < 0.7) {
                 attack(player2, []);
                 lastAttackTime = currentTime;
             }
