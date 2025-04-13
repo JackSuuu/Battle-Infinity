@@ -5,6 +5,26 @@ kaboom({
     debug: false
 })
 
+// LOAD SOUND
+// At the top, with other globals
+let isSoundLoaded = false;
+
+// After loadSound
+loadSound("game-start", "assets/audio/627040__herb__aiva-cyberpunk-ambient.mp3").then(() => {
+    isSoundLoaded = true;
+    console.log("Game start sound loaded");
+});
+
+loadSound("character-attack", "assets/audio/sword-slash-and-swing-185432.mp3").then(() => {
+    isSoundLoaded = true;
+    console.log("Game attack sound loaded");
+});
+
+loadSound("victory", "assets/audio/victory-sound-1.wav").then(() => {
+    isSoundLoaded = true;
+    console.log("Game victory sound loaded");
+});
+
 // LOAD ALL SPRITE SHEET SECTION
 // Load background sprite
 loadSprite("background", "assets/background/cyberpunk-street-files/Assets/Version 2/Layers/foreground.png")
@@ -157,7 +177,21 @@ loadCharacters().then(newCharacters => {
 
 // SCENE HOME
 scene("home", () => {
-
+    // Play sound on scene start
+    if (isSoundLoaded) {
+        play("game-start", {
+            loop: true,
+            volume: 0.5
+        });
+    } else {
+        console.log("Sound not loaded yet, retrying...");
+        onLoad(() => {
+            play("game-start", {
+                loop: true,
+                volume: 0.5
+            });
+        });
+    }
     // In the "home" scene
     const canvas = document.querySelector('canvas');
 
@@ -301,7 +335,7 @@ scene("home", () => {
 
             // Instructions panel
             const panel = add([
-                rect(800, 500, { radius: 12 }),
+                rect(800, 600, { radius: 12 }),
                 pos(center().x, center().y),
                 anchor("center"),
                 color(20, 20, 20),
@@ -317,30 +351,30 @@ scene("home", () => {
                     font: "sinko",
                     styles: { outline: 3 }
                 }),
-                pos(0, -200),
+                pos(0, -230),
                 anchor("center"),
                 color(255, 255, 255)
             ]);
 
             panel.add([
                 text(
-                    "Player 1 Controls:\n" +
+                    "# Player 1 Controls:\n" +
                     "A/D - Move Left/Right\n" +
                     "W - Jump\n" +
                     "Space - Attack\n\n" +
-                    "Player 2 Controls:\n" +
+                    "# Player 2 Controls:\n" +
                     "←/→ - Move Left/Right\n" +
                     "↑ - Jump\n" +
                     "↓ - Attack\n\n" +
                     "Game Rules:\n" +
                     "- First to reduce opponent's health to 0 wins!\n" +
-                    "- 60 second time limit\n" +
-                    "- Best of 3 rounds wins the match!",
+                    "- 60 second time limit",
                     {
-                        size: 14,
+                        size: 15,
                         font: "sinko",
                         width: 700,
                         lineSpacing: 15,
+                        align: "center",
                         styles: {
                             outline: 2
                         }
@@ -354,7 +388,7 @@ scene("home", () => {
             // Close button (avoid redeclaring closeBtn)
             const closeButton = panel.add([
                 rect(120, 40, { radius: 6 }),
-                pos(0, 200),
+                pos(0, 250),
                 anchor("center"),
                 area(),
                 color(200, 50, 50),
@@ -675,6 +709,22 @@ scene("fight", (params = { player1: characterData[0], player2: characterData[1] 
     onKeyDown("enter", () => gameOver ? go("fight") : null)
 
     function declareWinner(winningText, player1, player2) {
+        // End sound effect
+        if (isSoundLoaded) {
+            play("victory", {
+                loop: false,
+                volume: 0.5
+            });
+        } else {
+            console.log("Sound not loaded yet, retrying...");
+            onLoad(() => {
+                play("victory", {
+                    loop: false,
+                    volume: 0.5
+                });
+            });
+        }
+
         const whiteOverlay = add([
             rect(width(), height()),
             color(255, 255, 255),
@@ -766,14 +816,35 @@ scene("fight", (params = { player1: characterData[0], player2: characterData[1] 
         if (player1.health !== 0) {
             console.log("Player 1 hit by Player 2! Health:", player1.health, "Position:", player1.pos);
             player1.health -= 50;
+
+            // change health container
+            tween(player1HealthBar.width, player1.health, 1, (val) => {
+                player1HealthBar.width = val;
+            }, easings.easeOutSine);
+
+            // being attacked indicator
             player1.color = rgb(255, 0, 0);
             wait(0.3, () => {
                 player1.color = rgb(255, 255, 255); // This will be fixed later
                 console.log("Player 1 flash reset");
             });
-            tween(player1HealthBar.width, player1.health, 1, (val) => {
-                player1HealthBar.width = val;
-            }, easings.easeOutSine);
+
+            // attack sound
+            if (isSoundLoaded) {
+                play("character-attack", {
+                    loop: false,
+                    volume: 0.5
+                });
+            } else {
+                console.log("Sound not loaded yet, retrying...");
+                onLoad(() => {
+                    play("character-attack", {
+                        loop: false,
+                        volume: 0.5
+                    });
+                });
+            }
+
         }
         if (player1.health === 0) {
             console.log("Player 1 defeated!");
@@ -803,13 +874,33 @@ scene("fight", (params = { player1: characterData[0], player2: characterData[1] 
             console.log("Player 2 hit by Player 1! Health:", player2.health, "Position:", player2.pos);
             player2.health -= 50;
             player2.color = rgb(255, 0, 0);
+
+            // change health container
+            tween(player2HealthBar.width, player2.health, 1, (val) => {
+                player2HealthBar.width = val;
+            }, easings.easeOutSine);
+
+            // being attacked effect
             wait(0.3, () => {
                 player2.color = rgb(255, 255, 255); // This will be fixed later
                 console.log("Player 2 flash reset");
             });
-            tween(player2HealthBar.width, player2.health, 1, (val) => {
-                player2HealthBar.width = val;
-            }, easings.easeOutSine);
+
+            // attack sound
+            if (isSoundLoaded) {
+                play("character-attack", {
+                    loop: false,
+                    volume: 0.5
+                });
+            } else {
+                console.log("Sound not loaded yet, retrying...");
+                onLoad(() => {
+                    play("character-attack", {
+                        loop: false,
+                        volume: 0.5
+                    });
+                });
+            }
         }
         if (player2.health === 0) {
             console.log("Player 2 defeated!");
