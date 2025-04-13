@@ -72,5 +72,42 @@
                 "anims": { "death": { "from": 0, "to": 9, "speed": 10 } }
             }
         }
+    },
+    {
+        "id": "player5",
+        "name": "BingerDeath",
+        "spriteHeight": 80,
+        "sprites": {
+            "idle": {
+                "path": "assets/BingerDeath/Bringer-of-Death-SpritSheet.png",
+                "sliceX": 8,
+                "sliceY": 8,
+                "anims": { "idle": { "from": 0, "to": 7, "speed": 12, "loop": true } }
+            },
+            "run": {
+                "path": "assets/BingerDeath/Bringer-of-Death-SpritSheet.png",
+                "sliceX": 8,
+                "sliceY": 8,
+                "anims": { "run": { "from": 8, "to": 15, "speed": 12, "loop": true } }
+            },
+            "jump": {
+                "path": "assets/BingerDeath/Bringer-of-Death-SpritSheet.png",
+                "sliceX": 8,
+                "sliceY": 8,
+                "anims": { "jump": { "from": 49, "to": 63, "speed": 18, "loop": true } }
+            },
+            "attack": {
+                "path": "assets/BingerDeath/Bringer-of-Death-SpritSheet.png",
+                "sliceX": 8,
+                "sliceY": 8,
+                "anims": { "attack": { "from": 16, "to": 23, "speed": 12 } }
+            },
+            "death": {
+                "path": "assets/BingerDeath/Bringer-of-Death-SpritSheet.png",
+                "sliceX": 8,
+                "sliceY": 8,
+                "anims": { "death": { "from": 32, "to": 39, "speed": 10 } }
+            }
+        }
     }
 ]
