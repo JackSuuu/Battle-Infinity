@@ -1,6 +1,6 @@
-# Punk Battle Refine
+# Battle Infinity
 
-A refined version of the Punk Battle game developed using the [Kaboom.js](https://kaboomjs.com/) JavaScript library. This project offers an updated take on the classic punk battle concept with enhanced gameplay mechanics and visuals.
+Battle Infinity is a refined version of the Punk Battle game developed using the [Kaboom.js](https://kaboomjs.com/) JavaScript library. This project offers an updated take on the classic punk battle concept with enhanced gameplay mechanics and visuals.
 
 ![Game Demo](game_demo.png)
 
@@ -8,7 +8,7 @@ A refined version of the Punk Battle game developed using the [Kaboom.js](https:
 
 ## Table of Contents
 
-- [Punk Battle Refine](#punk-battle-refine)
+- [Battle Infinity](#battle-infinity)
   - [Table of Contents](#table-of-contents)
   - [About the Project](#about-the-project)
   - [Features](#features)

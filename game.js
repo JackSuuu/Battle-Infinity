@@ -10,7 +10,7 @@ kaboom({
 loadSprite("background", "assets/background/cyberpunk-street-files/Assets/Version 2/Layers/foreground.png")
 loadSprite("back_building", "assets/background/cyberpunk-street-files/Assets/Version 2/Layers/back.png")
 loadSprite("middle", "assets/background/cyberpunk-street-files/Assets/Version 2/Layers/middle.png")
-loadSpriteAtlas("assets/oak_woods_tileset.png", {
+loadSpriteAtlas("assets/oak_woods_v1.0/oak_woods_tileset.png", {
     "ground-golden": {
         "x": 16,
         "y": 0,
@@ -46,21 +46,20 @@ loadSpriteAtlas("assets/oak_woods_tileset.png", {
        - loop: true -> The animation will repeat indefinitely.
 */
 
-loadSprite("shop", "assets/shop_anim.png", {
-    sliceX: 6,
-    sliceY: 1,
-    anims: {
-        "default": {
-            from: 0,
-            to: 5,
-            speed: 12,
-            loop: true
-        }
-    }
-})
-loadSprite("fence", "assets/fence_1.png")
-loadSprite("sign", "assets/sign.png")
+// loadSprite("shop", "assets/shop_anim.png", {
+//     sliceX: 6,
+//     sliceY: 1,
+//     anims: {
+//         "default": {
+//             from: 0,
+//             to: 5,
+//             speed: 12,
+//             loop: true
+//         }
+//     }
+// })
 
+// DEFAULT TESTING SPRITE
 loadSprite("idle-player1", "assets/TheSword/idle-player1.png", {
     sliceX: 8, sliceY: 1, anims: { "idle": {from: 0, to: 7, speed: 12, loop: true}}
 })
@@ -98,6 +97,7 @@ let characterData = [
     {
         id: "player1",
         name: "TheSword",
+        spriteHeight: 43, // Unscaled height of idle-player1.png (adjust based on actual sprite)
         sprites: {
             idle: "idle-player1",
             run: "run-player1",
@@ -109,6 +109,7 @@ let characterData = [
     {
         id: "player2",
         name: "GhostSword",
+        spriteHeight: 52, // Unscaled height of idle-player2.png (adjust based on actual sprite)
         sprites: {
             idle: "idle-player2",
             run: "run-player2",
@@ -127,8 +128,9 @@ async function loadCharacters() {
         const response = await fetch("characters.json");
         if (!response.ok) throw new Error(`Failed to load characters.json: ${response.status}`);
         const characters = await response.json();
-
         for (const char of characters) {
+            // Default spriteHeight if missing
+            char.spriteHeight = char.spriteHeight || 50; // Fallback height
             for (const [state, sprite] of Object.entries(char.sprites)) {
                 const spriteName = `${state}-${char.id}`;
                 loadSprite(spriteName, sprite.path, {
@@ -136,7 +138,6 @@ async function loadCharacters() {
                     sliceY: sprite.sliceY,
                     anims: sprite.anims
                 });
-                // Update char.sprites to use the correct sprite name
                 char.sprites[state] = spriteName;
             }
         }
@@ -205,7 +206,7 @@ scene("home", () => {
     ])
 
     // Add a yellow background rectangle
-    const textWidth = 600; // Approximate width for "Punk Battle Refined" at size 90
+    const textWidth = 600; // Approximate width for "Battle Infinity" at size 90
     const textHeight = 100; // Approximate height for the text
     const padding = 20; // Extra space around the text for the background
 
@@ -219,7 +220,7 @@ scene("home", () => {
 
     // Title
     add([
-        text("Punk Battle Refined", { 
+        text("Battle Infinity", { 
             size: 90,
             font: "digital",
             styles: {
@@ -467,7 +468,10 @@ scene("fight", (params = { player1: characterData[0], player2: characterData[1] 
 //     pos(290, 115)
 //    ])
 
-    function makePlayer(posX, posY, width, height, scaleFactor, charData) {
+    function makePlayer(posX, groundY, scaleFactor, charData) {
+        const width = 16; // Consistent collision width
+        const height = charData.spriteHeight; // Use sprite height for collision
+        const posY = groundY + (height * scaleFactor) / 2; // Center player’s anchor at ground
         return add([
             pos(posX, posY),
             scale(scaleFactor),
@@ -485,7 +489,8 @@ scene("fight", (params = { player1: characterData[0], player2: characterData[1] 
 
     setGravity(1200)
 
-    const player1 = makePlayer(200, 150, 16, 60, 4, player1Data)
+    const groundY = 200; // Top of ground tiles
+    const player1 = makePlayer(200, groundY, 4, player1Data)
     player1.use(sprite(player1.sprites.idle))
     player1.play("idle")
 
@@ -602,7 +607,7 @@ scene("fight", (params = { player1: characterData[0], player2: characterData[1] 
         destroyAll(player1.id + "attackHitbox")
     })
 
-    const player2 = makePlayer(1000, 200, 16, 52, 4, player2Data)
+    const player2 = makePlayer(1000, groundY, 4, player2Data)
     player2.use(sprite(player2.sprites.idle))
     player2.play("idle")
     player2.flipX = true
@@ -843,7 +848,7 @@ scene("character_select", () => {
     ])
 
     // Title
-    const textWidth = 600; // Approximate width for "Punk Battle Refined" at size 90
+    const textWidth = 600; // Approximate width for "Battle Infinity" at size 90
     const textHeight = 100; // Approximate height for the text
     const padding = 30; // Extra space around the text for the background
 
