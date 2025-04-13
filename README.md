@@ -35,20 +35,20 @@ The game integrate a AI reinforcement learning neural network to predict the act
 
 **Key Components:**
 
-- Network: Configured for 9 inputs (game state) and 4 outputs (actions).
-- trainingData: Stores input-output pairs globally within ai.js.
-- loadAI: Loads saved model at game start.
-- saveAI: Saves model after training.
-- trainAI: Trains on collected data, limiting to 1000 samples.
-- collectData: Adds player1 state and actions to trainingData.
-- predictAction: Outputs AI actions for player2 based on game state.
-- Export: Uses window.AI to make functions accessible to main.js(avoids ES module complexity in browsers).
+- **Network:** Configured for 9 inputs (game state) and 4 outputs (actions).
+- **trainingData:** Stores input-output pairs globally within ai.js.
+- **loadAI:** Loads saved model at game start.
+- **saveAI:** Saves model after training.
+- **trainAI:** Trains on collected data, limiting to 1000 samples.
+- **collectData:** Adds player1 state and actions to trainingData.
+- **predictAction:** Outputs AI actions for player2 based on game state.
+- **Export:** Uses window.AI to make functions accessible to main.js(avoids ES module complexity in browsers).
 
 #### How AI works?
 
-- First match: AI may be inactive (untrained).
-- After match: Training runs (check console).
-- Next match: AI mimics player1 (e.g., moves toward you).
+- **First match:** AI may be inactive (untrained).
+- **After match:** Training runs (check console).
+- **Next match:** AI mimics player1 (e.g., moves toward you).
 
 #### Observation
 
