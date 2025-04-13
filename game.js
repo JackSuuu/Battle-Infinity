@@ -378,7 +378,9 @@ scene("home", () => {
 });
 
 // SCENE FIGHT
-scene("fight", () => {
+scene("fight", (params = { player1: characterData[0], player2: characterData[1] }) => {
+    const { player1: player1Data, player2: player2Data } = params;
+    
     // Background
     const background = add([
         sprite("back_building"),
@@ -465,7 +467,7 @@ scene("fight", () => {
 //     pos(290, 115)
 //    ])
 
-    function makePlayer(posX, posY, width, height, scaleFactor, id) {
+    function makePlayer(posX, posY, width, height, scaleFactor, charData) {
         return add([
             pos(posX, posY),
             scale(scaleFactor),
@@ -475,20 +477,15 @@ scene("fight", () => {
             {
                 isCurrentlyJumping: false,
                 health: 500,
-                sprites: {
-                    run: "run-" + id,
-                    idle: "idle-" + id,
-                    jump: "jump-" + id,
-                    attack: "attack-" + id,
-                    death: "death-" + id
-                }
+                sprites: charData.sprites,
+                id: charData.id
             }
         ])
     }
 
     setGravity(1200)
 
-    const player1 = makePlayer(200, 150, 16, 60, 4, "player1")
+    const player1 = makePlayer(200, 150, 16, 60, 4, player1Data)
     player1.use(sprite(player1.sprites.idle))
     player1.play("idle")
 
@@ -605,7 +602,7 @@ scene("fight", () => {
         destroyAll(player1.id + "attackHitbox")
     })
 
-    const player2 = makePlayer(1000, 200, 16, 52, 4, "player2")
+    const player2 = makePlayer(1000, 200, 16, 52, 4, player2Data)
     player2.use(sprite(player2.sprites.idle))
     player2.play("idle")
     player2.flipX = true
@@ -649,7 +646,8 @@ scene("fight", () => {
         pos(center().x, center().y - 300),
         color(10,10,10),
         area(),
-        anchor("center")
+        anchor("center"),
+        outline(8, WHITE)
        ])
     
     const count = counter.add([
@@ -746,7 +744,7 @@ scene("fight", () => {
     const player1HealthContainer = add([
         rect(500, 70),
         area(),
-        outline(5),
+        outline(8, WHITE),
         pos(90, 20),
         color(200,0,0)
        ])
@@ -759,28 +757,31 @@ scene("fight", () => {
     ])
 
     player1.onCollide(player2.id + "attackHitbox", () => {
-        if (gameOver) {
-            return
-        }
-        
+        if (gameOver) return;
         if (player1.health !== 0) {
-            player1.health -= 50
+            console.log("Player 1 hit by Player 2! Health:", player1.health, "Position:", player1.pos);
+            player1.health -= 50;
+            player1.color = rgb(255, 0, 0);
+            wait(0.3, () => {
+                player1.color = rgb(255, 255, 255); // This will be fixed later
+                console.log("Player 1 flash reset");
+            });
             tween(player1HealthBar.width, player1.health, 1, (val) => {
-                player1HealthBar.width = val
-            }, easings.easeOutSine) 
-        } 
-        
-        if (player1.health === 0) {
-            clearInterval(countInterval)
-            declareWinner(winningText, player1, player2)
-            gameOver = true
+                player1HealthBar.width = val;
+            }, easings.easeOutSine);
         }
-    })
+        if (player1.health === 0) {
+            console.log("Player 1 defeated!");
+            clearInterval(countInterval);
+            declareWinner(winningText, player1, player2);
+            gameOver = true;
+        }
+    });
 
     const player2HealthContainer = add([
         rect(500, 70),
         area(),
-        outline(5),
+        outline(8, WHITE),
         pos(690, 20),
         color(200,0,0)
     ])
@@ -792,23 +793,26 @@ scene("fight", () => {
     ])
     
     player2.onCollide(player1.id + "attackHitbox", () => {
-        if (gameOver) {
-            return
-        }
-        
+        if (gameOver) return;
         if (player2.health !== 0) {
-            player2.health -= 50 
+            console.log("Player 2 hit by Player 1! Health:", player2.health, "Position:", player2.pos);
+            player2.health -= 50;
+            player2.color = rgb(255, 0, 0);
+            wait(0.3, () => {
+                player2.color = rgb(255, 255, 255); // This will be fixed later
+                console.log("Player 2 flash reset");
+            });
             tween(player2HealthBar.width, player2.health, 1, (val) => {
-                player2HealthBar.width = val
-            }, easings.easeOutSine) 
-        } 
-        
-        if (player2.health === 0) {
-            clearInterval(countInterval)
-            declareWinner(winningText, player1, player2)
-            gameOver = true
+                player2HealthBar.width = val;
+            }, easings.easeOutSine);
         }
-    })
+        if (player2.health === 0) {
+            console.log("Player 2 defeated!");
+            clearInterval(countInterval);
+            declareWinner(winningText, player1, player2);
+            gameOver = true;
+        }
+    });
 })
 
 scene("character_select", () => {
@@ -880,7 +884,7 @@ scene("character_select", () => {
 
     characterData.forEach((char, index) => {
         const charBox = add([
-            rect(charWidth - 20, charHeight - 20, { radius: 8 }),
+            rect(charWidth - 30, charHeight - 30, { radius: 8 }),
             pos(startX + index * charWidth, startY),
             anchor("center"),
             color(50, 50, 50),
@@ -892,7 +896,7 @@ scene("character_select", () => {
         // Character sprite
         const spriteObj = charBox.add([
             sprite(char.sprites.idle),
-            scale(2),
+            scale(1.7),
             anchor("center"),
             z(4)
         ]);
@@ -900,8 +904,8 @@ scene("character_select", () => {
 
         // Character name
         charBox.add([
-            text(char.name, { size: 24, font: "sinko" }),
-            pos(0, charHeight / 2 - 20),
+            text(char.name, { size: 20, font: "sinko" }),
+            pos(0, charHeight / 2 - 30),
             anchor("center"),
             color(255, 255, 255),
             z(4)
