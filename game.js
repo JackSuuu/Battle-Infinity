@@ -5,6 +5,9 @@ kaboom({
     debug: false
 })
 
+// Global variable to track control mode
+let useAIControl = true; // Default to AI control
+
 // LOAD SOUND
 // At the top, with other globals
 let isSoundLoaded = false;
@@ -265,7 +268,7 @@ scene("home", () => {
         }),
         pos(center().x, 150),
         anchor("center"),
-        color(0, 204, 255),
+        color(0, 0, 0),
         z(1)
     ]);
 
@@ -322,7 +325,7 @@ scene("home", () => {
     onClick("btn", (b) => {
         if (b === startBtn) {
             go("character_select");
-        } else {
+        } else if (b === instructionsBtn) {
             // Darken background
             const overlay = add([
                 rect(width(), height()),
@@ -362,6 +365,7 @@ scene("home", () => {
                     "A/D - Move Left/Right\n" +
                     "W - Jump\n" +
                     "Space - Attack\n\n" +
+                    "Use a variety of moves to train the AI effectively!\n" +
                     "# Player 2 Controls:\n" +
                     "←/→ - Move Left/Right\n" +
                     "↑ - Jump\n" +
@@ -408,509 +412,32 @@ scene("home", () => {
         }
     });
 
+    // Add a toggle button for control mode
+    const controlModeBtn = add([
+        rect(240, 60, { radius: 8 }),
+        pos(center().x, 500),
+        area(),
+        anchor("center"),
+        color(255, 255, 0),
+        "btn"
+    ]);
+
+    const controlModeText = controlModeBtn.add([
+        text(useAIControl ? "AI Control" : "Player 2 Control", { size: 32, font: "sinko" }),
+        anchor("center"),
+        color(0, 0, 0)
+    ]);
+
+    controlModeBtn.onClick(() => {
+        useAIControl = !useAIControl;
+        controlModeText.text = useAIControl ? "AI Control" : "Player 2 Control";
+    });
+
     // Start with any key
     onKeyPress("enter", () => go("character_select"));
 });
 
-// SCENE FIGHT
-scene("fight", (params = { player1: characterData[0], player2: characterData[1] }) => {
-    const { player1: player1Data, player2: player2Data } = params;
-    
-    // Background
-    const background = add([
-        sprite("back_building"),
-        scale(3),
-        pos(0, 0),
-        z(0), // Lower z-index (rendered first)
-    ])
-
-    background.add([
-        sprite("back_building"),
-        scale(3),
-        pos(100, 0),
-        z(0),
-    ])
-
-    background.add([
-        sprite("background"),
-        z(2), // Lower z-index (rendered first)
-    ])
-
-    // shop.play("default")
-
-    background.add([
-        sprite("middle"),
-    ])
-
-    const groundTiles = addLevel([
-        "","","","","","","","","",
-        "------#######-----------",
-        "dddddddddddddddddddddddd",
-        "dddddddddddddddddddddddd"
-        ], {
-        tileWidth: 16,
-        tileHeight: 16,
-        tiles: {
-            "#": () => [
-                sprite("ground-golden"),
-                area(),
-                body({isStatic: true})
-            ],
-            "-": () => [
-                sprite("ground-silver"),
-                area(),
-                body({isStatic: true}),
-            ],
-            "d": () => [
-                sprite("deep-ground"),
-                area(),
-                body({isStatic: true})
-            ]
-        }
-    })
-    
-    groundTiles.use(scale(4))
-
-   // left invisible wall
-   add([
-    rect(16, 720),
-    area(),
-    body({isStatic: true}),
-    pos(-20,0)
-   ])
-
-   // right invisible wall
-   add([
-    rect(16, 720),
-    area(),
-    body({isStatic: true}),
-    pos(1280,0)
-   ])
-
-//    background.add([
-//     sprite("fence"),
-//     pos(85, 125)
-//    ])
-
-//    background.add([
-//     sprite("fence"),
-//     pos(10, 125)
-//    ])
-
-//    background.add([
-//     sprite("sign"),
-//     pos(290, 115)
-//    ])
-
-    function makePlayer(posX, groundY, scaleFactor, charData) {
-        const width = 16; // Consistent collision width
-        const height = charData.spriteHeight; // Use sprite height for collision
-        const posY = groundY + (height * scaleFactor) / 2; // Center player’s anchor at ground
-        return add([
-            pos(posX, posY),
-            scale(scaleFactor),
-            area({shape: new Rect(vec2(0), width, height)}),
-            anchor("center"),
-            body({stickToPlatform: true}),
-            {
-                isCurrentlyJumping: false,
-                health: 500,
-                sprites: charData.sprites,
-                id: charData.id
-            }
-        ])
-    }
-
-    setGravity(1200)
-
-    const groundY = 200; // Top of ground tiles
-    const player1 = makePlayer(200, groundY, 4, player1Data)
-    player1.use(sprite(player1.sprites.idle))
-    player1.play("idle")
-
-    function run(player, speed, flipPlayer) {
-        if (player.health === 0) {
-            return
-        }
-    
-        if (player.curAnim() !== "run"
-            && !player.isCurrentlyJumping) {
-            player.use(sprite(player.sprites.run))
-            player.play("run")
-        }
-        player.move(speed,0)
-        player.flipX = flipPlayer
-    }
-
-    function resetPlayerToIdle(player) {
-        player.use(sprite(player.sprites.idle))
-        player.play("idle")
-    }
-
-    onKeyDown("d", () => {
-        run(player1, 500, false)
-    })
-    onKeyRelease("d", () => {
-        if (player1.health !== 0) {
-            resetPlayerToIdle(player1)
-            player1.flipX = false
-        }
-    })
-
-    onKeyDown("a", () => {
-        run(player1, -500, true)
-    })
-    onKeyRelease("a", () => {
-        if (player1.health !== 0) {
-            resetPlayerToIdle(player1)
-            player1.flipX = true
-        }
-    })
-
-    function makeJump(player) {
-        if (player.health === 0) {
-            return
-        }
-    
-        if (player.isGrounded()) {
-            const currentFlip = player.flipX
-            player.jump()
-            player.use(sprite(player.sprites.jump))
-            player.flipX = currentFlip
-            player.play("jump")
-            player.isCurrentlyJumping = true
-        }
-    }
-
-    function resetAfterJump(player) {
-        if (player.isGrounded() && player.isCurrentlyJumping) {
-            player.isCurrentlyJumping = false
-            if (player.curAnim() !== "idle") {
-                resetPlayerToIdle(player)
-            }
-        }
-    }
-
-    onKeyDown("w", () => {
-        makeJump(player1)
-    })
-
-    player1.onUpdate(() => resetAfterJump(player1))
-
-    function attack(player, excludedKeys) {
-        if (player.health === 0) {
-            return
-        }
-    
-        for (const key of excludedKeys) {
-            if (isKeyDown(key)) {
-                return
-            }
-        }
-    
-        const currentFlip = player.flipX
-        if (player.curAnim() !== "attack") {
-            player.use(sprite(player.sprites.attack))
-            player.flipX = currentFlip
-            const slashX = player.pos.x + 30
-            const slashXFlipped = player.pos.x - 350
-            const slashY = player.pos.y - 200
-            
-            add([
-                rect(300,300),
-                area(),
-                pos(currentFlip ? slashXFlipped: slashX, slashY),
-                opacity(0),
-                player.id + "attackHitbox"
-            ])
-    
-            player.play("attack", {
-                onEnd: () => {
-                    resetPlayerToIdle(player)
-                    player.flipX = currentFlip
-                }
-            }) 
-        }
-    }
-
-    onKeyPress("space", () => {
-        attack(player1, ["a", "d", "w"])
-    })
-
-    onKeyRelease("space", () => {
-        destroyAll(player1.id + "attackHitbox")
-    })
-
-    const player2 = makePlayer(1000, groundY, 4, player2Data)
-    player2.use(sprite(player2.sprites.idle))
-    player2.play("idle")
-    player2.flipX = true
-
-    onKeyDown("right", () => {
-        run(player2, 500, false)
-    })
-    onKeyRelease("right", () => {
-        if (player2.health !== 0) {
-            resetPlayerToIdle(player2)
-            player2.flipX = false
-        }
-    })
-
-    onKeyDown("left", () => {
-        run(player2, -500, true)
-    })
-    onKeyRelease("left", () => {
-        if (player2.health !== 0) {
-            resetPlayerToIdle(player2)
-            player2.flipX = true
-        }
-    })
-
-    onKeyDown("up", () => {
-        makeJump(player2)
-    })
-
-    player2.onUpdate(() => resetAfterJump(player2))
-
-    onKeyPress("down", () => {
-        attack(player2, ["left", "right", "up"])
-    })
-
-    onKeyRelease("down", () => {
-        destroyAll(player2.id + "attackHitbox")
-    })
-    
-    const counter = add([
-        rect(100,100),
-        pos(center().x, center().y - 300),
-        color(10,10,10),
-        area(),
-        anchor("center"),
-        outline(8, WHITE)
-       ])
-    
-    const count = counter.add([
-        text("60"),
-        area(),
-        anchor("center"),
-        {
-            timeLeft: 60,
-        }
-    ])
-
-    const winningText = add([
-        text(""),
-        area(),
-        anchor("center"),
-        pos(center())
-    ])
-    
-    let gameOver = false
-    onKeyDown("enter", () => gameOver ? go("fight") : null)
-
-    function declareWinner(winningText, player1, player2) {
-        // End sound effect
-        if (isSoundLoaded) {
-            play("victory", {
-                loop: false,
-                volume: 0.5
-            });
-        } else {
-            console.log("Sound not loaded yet, retrying...");
-            onLoad(() => {
-                play("victory", {
-                    loop: false,
-                    volume: 0.5
-                });
-            });
-        }
-
-        const whiteOverlay = add([
-            rect(width(), height()),
-            color(255, 255, 255),
-            opacity(0.3), // Adjust the opacity to control the intensity of the white filter
-            fixed(),
-            z(0), // Ensure it's behind other elements
-        ]);
-
-        if (player1.health > 0 && player2.health > 0
-            || player1.health === 0 && player2.health === 0) {
-            winningText.text = "Tie!"
-        } else if (player1.health > 0 && player2.health === 0) {
-            winningText.text = "Player 1 won!"
-            player2.use(sprite(player2.sprites.death))
-            player2.play("death")
-            
-        } else {
-            winningText.text = "Player 2 won!"
-            player1.use(sprite(player1.sprites.death))
-            player1.play("death")
-        }
-
-        // Add "Back to Home" button
-        const backToHomeBtn = add([
-            rect(240, 60, { radius: 8 }),           // Button shape with rounded corners
-            pos(center().x, center().y + 100),     // Position below winning text
-            area(),                                // Enable click detection
-            anchor("center"),                      // Center the button
-            color(100, 100, 200),                  // Blue-ish color
-            "btn"                                  // Tag for hover effects
-        ]);
-
-        backToHomeBtn.add([
-            text("Back to Home", { size: 32, font: "sinko" }), // Button label
-            anchor("center"),                                  // Center text in button
-            color(0, 0, 0)                                     // Black text
-        ]);
-
-        backToHomeBtn.onClick(() => go("home"));              // Navigate to "home" scene on click
-
-        // Add "Restart" button
-        const restartBtn = add([
-            rect(240, 60, { radius: 8 }),           // Button shape with rounded corners
-            pos(center().x, center().y + 200),     // Position further below
-            area(),                                // Enable click detection
-            anchor("center"),                      // Center the button
-            color(100, 200, 100),                  // Green-ish color
-            "btn"                                  // Tag for hover effects
-        ]);
-
-        restartBtn.add([
-            text("Restart", { size: 32, font: "sinko" }), // Button label
-            anchor("center"),                             // Center text in button
-            color(0, 0, 0)                                // Black text
-        ]);
-
-        restartBtn.onClick(() => go("fight"));           // Restart "fight" scene on click
-    }
-
-    const countInterval = setInterval(() => {
-        if (count.timeLeft === 0) {
-            clearInterval(countInterval)
-            declareWinner(winningText, player1, player2)
-            gameOver = true
-    
-            return
-        }
-        count.timeLeft--
-        count.text = count.timeLeft
-    }, 1000)
-
-    const player1HealthContainer = add([
-        rect(500, 70),
-        area(),
-        outline(8, WHITE),
-        pos(90, 20),
-        color(200,0,0)
-       ])
-       
-    const player1HealthBar = player1HealthContainer.add([
-        rect(498, 65),
-        color(0,180,0),
-        pos(498, 70 - 2.5),
-        rotate(180)
-    ])
-
-    player1.onCollide(player2.id + "attackHitbox", () => {
-        if (gameOver) return;
-        if (player1.health !== 0) {
-            console.log("Player 1 hit by Player 2! Health:", player1.health, "Position:", player1.pos);
-            player1.health -= 50;
-
-            // change health container
-            tween(player1HealthBar.width, player1.health, 1, (val) => {
-                player1HealthBar.width = val;
-            }, easings.easeOutSine);
-
-            // being attacked indicator
-            player1.color = rgb(255, 0, 0);
-            wait(0.3, () => {
-                player1.color = rgb(255, 255, 255); // This will be fixed later
-                console.log("Player 1 flash reset");
-            });
-
-            // attack sound
-            if (isSoundLoaded) {
-                play("character-attack", {
-                    loop: false,
-                    volume: 0.5
-                });
-            } else {
-                console.log("Sound not loaded yet, retrying...");
-                onLoad(() => {
-                    play("character-attack", {
-                        loop: false,
-                        volume: 0.5
-                    });
-                });
-            }
-
-        }
-        if (player1.health === 0) {
-            console.log("Player 1 defeated!");
-            clearInterval(countInterval);
-            declareWinner(winningText, player1, player2);
-            gameOver = true;
-        }
-    });
-
-    const player2HealthContainer = add([
-        rect(500, 70),
-        area(),
-        outline(8, WHITE),
-        pos(690, 20),
-        color(200,0,0)
-    ])
-       
-    const player2HealthBar = player2HealthContainer.add([
-        rect(498, 65),
-        color(0,180,0),
-        pos(2.5, 2.5),
-    ])
-    
-    player2.onCollide(player1.id + "attackHitbox", () => {
-        if (gameOver) return;
-        if (player2.health !== 0) {
-            console.log("Player 2 hit by Player 1! Health:", player2.health, "Position:", player2.pos);
-            player2.health -= 50;
-            player2.color = rgb(255, 0, 0);
-
-            // change health container
-            tween(player2HealthBar.width, player2.health, 1, (val) => {
-                player2HealthBar.width = val;
-            }, easings.easeOutSine);
-
-            // being attacked effect
-            wait(0.3, () => {
-                player2.color = rgb(255, 255, 255); // This will be fixed later
-                console.log("Player 2 flash reset");
-            });
-
-            // attack sound
-            if (isSoundLoaded) {
-                play("character-attack", {
-                    loop: false,
-                    volume: 0.5
-                });
-            } else {
-                console.log("Sound not loaded yet, retrying...");
-                onLoad(() => {
-                    play("character-attack", {
-                        loop: false,
-                        volume: 0.5
-                    });
-                });
-            }
-        }
-        if (player2.health === 0) {
-            console.log("Player 2 defeated!");
-            clearInterval(countInterval);
-            declareWinner(winningText, player1, player2);
-            gameOver = true;
-        }
-    });
-})
-
+// SCENE CHARACTER SELECT
 scene("character_select", () => {
     // Background
     const background = add([
@@ -1061,6 +588,593 @@ scene("character_select", () => {
     backBtn.onClick(() => go("home"));
 });
 
+// SCENE FIGHT
+scene("fight", (params = { player1: characterData[0], player2: characterData[1] }) => {
+    const { player1: player1Data, player2: player2Data } = params;
+    
+    // Background
+    const background = add([
+        sprite("back_building"),
+        scale(3),
+        pos(0, 0),
+        z(0), // Lower z-index (rendered first)
+    ])
 
-// Change the initial scene to home
+    background.add([
+        sprite("back_building"),
+        scale(3),
+        pos(100, 0),
+        z(0),
+    ])
+
+    background.add([
+        sprite("background"),
+        z(2), // Lower z-index (rendered first)
+    ])
+
+    // shop.play("default")
+
+    background.add([
+        sprite("middle"),
+    ])
+
+    const groundTiles = addLevel([
+        "","","","","","","","","",
+        "------#######-----------",
+        "dddddddddddddddddddddddd",
+        "dddddddddddddddddddddddd"
+        ], {
+        tileWidth: 16,
+        tileHeight: 16,
+        tiles: {
+            "#": () => [
+                sprite("ground-golden"),
+                area(),
+                body({isStatic: true})
+            ],
+            "-": () => [
+                sprite("ground-silver"),
+                area(),
+                body({isStatic: true}),
+            ],
+            "d": () => [
+                sprite("deep-ground"),
+                area(),
+                body({isStatic: true})
+            ]
+        }
+    })
+    
+    groundTiles.use(scale(4))
+
+   // left invisible wall
+   add([
+    rect(16, 720),
+    area(),
+    body({isStatic: true}),
+    pos(-20,0)
+   ])
+
+   // right invisible wall
+   add([
+    rect(16, 720),
+    area(),
+    body({isStatic: true}),
+    pos(1280,0)
+   ])
+
+//    background.add([
+//     sprite("fence"),
+//     pos(85, 125)
+//    ])
+
+//    background.add([
+//     sprite("fence"),
+//     pos(10, 125)
+//    ])
+
+//    background.add([
+//     sprite("sign"),
+//     pos(290, 115)
+//    ])
+
+    function makePlayer(posX, groundY, scaleFactor, charData) {
+        const width = 16; // Consistent collision width
+        const height = charData.spriteHeight; // Use sprite height for collision
+        const posY = groundY + (height * scaleFactor) / 2; // Center player’s anchor at ground
+        return add([
+            pos(posX, posY),
+            scale(scaleFactor),
+            area({shape: new Rect(vec2(0), width, height)}),
+            anchor("center"),
+            body({stickToPlatform: true}),
+            {
+                isCurrentlyJumping: false,
+                health: 500,
+                sprites: charData.sprites,
+                id: charData.id
+            }
+        ])
+    }
+
+    setGravity(1200)
+
+    const groundY = 200; // Top of ground tiles
+    const player1 = makePlayer(200, groundY, 4, player1Data)
+    player1.use(sprite(player1.sprites.idle))
+    player1.play("idle")
+
+    function run(player, speed, flipPlayer) {
+        if (player.health === 0) {
+            return
+        }
+    
+        if (player.curAnim() !== "run"
+            && !player.isCurrentlyJumping) {
+            player.use(sprite(player.sprites.run))
+            player.play("run")
+        }
+        player.move(speed,0)
+        player.flipX = flipPlayer
+    }
+
+    function resetPlayerToIdle(player) {
+        player.use(sprite(player.sprites.idle))
+        player.play("idle")
+    }
+
+    // Player1 controls
+    onKeyDown("d", () => {
+        run(player1, 500, false)
+    })
+    onKeyRelease("d", () => {
+        if (player1.health !== 0) {
+            resetPlayerToIdle(player1)
+            player1.flipX = false
+        }
+    })
+
+    onKeyDown("a", () => {
+        run(player1, -500, true)
+    })
+    onKeyRelease("a", () => {
+        if (player1.health !== 0) {
+            resetPlayerToIdle(player1)
+            player1.flipX = true
+        }
+    })
+
+    function makeJump(player) {
+        if (player.health === 0) {
+            return
+        }
+    
+        if (player.isGrounded()) {
+            const currentFlip = player.flipX
+            player.jump()
+            player.use(sprite(player.sprites.jump))
+            player.flipX = currentFlip
+            player.play("jump")
+            player.isCurrentlyJumping = true
+        }
+    }
+
+    function resetAfterJump(player) {
+        if (player.isGrounded() && player.isCurrentlyJumping) {
+            player.isCurrentlyJumping = false
+            if (player.curAnim() !== "idle") {
+                resetPlayerToIdle(player)
+            }
+        }
+    }
+
+    onKeyDown("w", () => {
+        makeJump(player1)
+    })
+
+    player1.onUpdate(() => resetAfterJump(player1))
+
+    function attack(player, excludedKeys) {
+        if (player.health === 0) {
+            return
+        }
+    
+        for (const key of excludedKeys) {
+            if (isKeyDown(key)) {
+                return
+            }
+        }
+    
+        const currentFlip = player.flipX
+        if (player.curAnim() !== "attack") {
+            player.use(sprite(player.sprites.attack))
+            player.flipX = currentFlip
+            const slashX = player.pos.x + 30
+            const slashXFlipped = player.pos.x - 350
+            const slashY = player.pos.y - 200
+            
+            add([
+                rect(300,300),
+                area(),
+                pos(currentFlip ? slashXFlipped: slashX, slashY),
+                opacity(0),
+                player.id + "attackHitbox"
+            ])
+    
+            player.play("attack", {
+                onEnd: () => {
+                    resetPlayerToIdle(player)
+                    player.flipX = currentFlip
+                }
+            }) 
+        }
+    }
+
+    onKeyPress("space", () => {
+        attack(player1, ["a", "d", "w"])
+    })
+
+    onKeyRelease("space", () => {
+        destroyAll(player1.id + "attackHitbox")
+    })
+
+    const player2 = makePlayer(1000, groundY, 4, player2Data)
+    player2.use(sprite(player2.sprites.idle))
+    player2.play("idle")
+    player2.flipX = true
+
+    // Collect player1 data for AI
+    onUpdate(() => {
+        const state = {
+            p1_x: player1.pos.x / width(),
+            p1_y: player1.pos.y / height(),
+            p2_x: player2.pos.x / width(),
+            p2_y: player2.pos.y / height(),
+            distance_x: (player1.pos.x - player2.pos.x) / width(),
+            p1_health: player1.health / 500,
+            p2_health: player2.health / 500,
+            p1_jumping: player1.isCurrentlyJumping ? 1 : 0,
+            p1_attacking: player1.curAnim() === "attack" ? 1 : 0
+        };
+        const action = {
+            moveLeft: isKeyDown("a") ? 1 : 0,
+            moveRight: isKeyDown("d") ? 1 : 0,
+            jump: isKeyDown("w") ? 1 : 0,
+            attack: isKeyDown("space") ? 1 : 0
+        };
+        AI.collectData(state, action);
+    });
+
+    // Control logic for player2 based on use AIControl
+    if (useAIControl) {
+        // Variables to track timing
+        let lastAttackTime = 0;
+        const attackCooldown = 0.5; // 1 second between attacks
+        let lastActionTime = 0;
+        const actionDelay = 0.1; // 100ms delay between actions
+
+        // AI control for player2
+        onUpdate(() => {
+            const currentTime = time();
+
+            // Skip if not enough time has passed since the last action
+            if (currentTime - lastActionTime < actionDelay) return;
+            lastActionTime = currentTime;
+
+            // Get AI decision
+            const aiAction = AI.predictAction(player1, player2, width(), height(), player2.flipX);
+
+            // Handle movement
+            if (aiAction.moveLeft && !aiAction.moveRight) {
+                run(player2, -500, true); // Move left (adjusted for flip)
+            } else if (aiAction.moveRight && !aiAction.moveLeft) {
+                run(player2, 500, false); // Move right
+            } else {
+                resetPlayerToIdle(player2); // Stop moving
+            }
+
+            // Handle jump
+            if (aiAction.jump) makeJump(player2);
+
+            // Handle attack with cooldown and probability
+            if (aiAction.attack && currentTime - lastAttackTime > attackCooldown && Math.random() < 0.3) {
+                attack(player2, []);
+                lastAttackTime = currentTime;
+            }
+        });
+    } else {
+        onKeyDown("right", () => {
+            run(player2, 500, false)
+        })
+        onKeyRelease("right", () => {
+            if (player2.health !== 0) {
+                resetPlayerToIdle(player2)
+                player2.flipX = false
+            }
+        })
+    
+        onKeyDown("left", () => {
+            run(player2, -500, true)
+        })
+        onKeyRelease("left", () => {
+            if (player2.health !== 0) {
+                resetPlayerToIdle(player2)
+                player2.flipX = true
+            }
+        })
+    
+        onKeyDown("up", () => {
+            makeJump(player2)
+        })
+    
+        player2.onUpdate(() => resetAfterJump(player2))
+    
+        onKeyPress("down", () => {
+            attack(player2, ["left", "right", "up"])
+        })
+    
+        onKeyRelease("down", () => {
+            destroyAll(player2.id + "attackHitbox")
+        })
+    }
+
+    // Data collection
+    onUpdate(() => {
+        const state = {
+            p1_x: player1.pos.x / width(), // Normalize to 0-1
+            p1_y: player1.pos.y / height(),
+            p2_x: player2.pos.x / width(),
+            p2_y: player2.pos.y / height(),
+            distance_x: (player1.pos.x - player2.pos.x) / width(),
+            p1_health: player1.health / 500,
+            p2_health: player2.health / 500,
+            p1_jumping: player1.isCurrentlyJumping ? 1 : 0,
+            p1_attacking: player1.curAnim() === "attack" ? 1 : 0
+        };
+        const action = {
+            moveLeft: isKeyDown("a") ? 1 : 0,
+            moveRight: isKeyDown("d") ? 1 : 0,
+            jump: isKeyDown("w") ? 1 : 0,
+            attack: isKeyDown("space") ? 1 : 0
+        };
+        trainingData.push({ input: state, output: action });
+    });
+    
+    // COUNTER SET UP
+    const counter = add([
+        rect(100,100),
+        pos(center().x, center().y - 300),
+        color(10,10,10),
+        area(),
+        anchor("center"),
+        outline(8, WHITE)
+       ])
+    
+    const count = counter.add([
+        text("60"),
+        area(),
+        anchor("center"),
+        {
+            timeLeft: 60,
+        }
+    ])
+
+    const winningText = add([
+        text(""),
+        area(),
+        anchor("center"),
+        pos(center())
+    ])
+    
+    let gameOver = false
+    onKeyDown("enter", () => gameOver ? go("fight") : null)
+
+    function declareWinner(winningText, player1, player2) {
+        // End sound effect
+        if (isSoundLoaded) {
+            play("victory", {
+                loop: false,
+                volume: 0.5
+            });
+        } else {
+            console.log("Sound not loaded yet, retrying...");
+            onLoad(() => {
+                play("victory", {
+                    loop: false,
+                    volume: 0.5
+                });
+            });
+        }
+
+        const whiteOverlay = add([
+            rect(width(), height()),
+            color(255, 255, 255),
+            opacity(0.3), // Adjust the opacity to control the intensity of the white filter
+            fixed(),
+            z(0), // Ensure it's behind other elements
+        ]);
+
+        if (player1.health > 0 && player2.health > 0
+            || player1.health === 0 && player2.health === 0) {
+            winningText.text = "Tie!"
+        } else if (player1.health > 0 && player2.health === 0) {
+            winningText.text = "Player 1 won!"
+            player2.use(sprite(player2.sprites.death))
+            player2.play("death")
+            
+        } else {
+            winningText.text = "Player 2 won!"
+            player1.use(sprite(player1.sprites.death))
+            player1.play("death")
+        }
+
+        // Add "Back to Home" button
+        const backToHomeBtn = add([
+            rect(240, 60, { radius: 8 }),           // Button shape with rounded corners
+            pos(center().x, center().y + 100),     // Position below winning text
+            area(),                                // Enable click detection
+            anchor("center"),                      // Center the button
+            color(100, 100, 200),                  // Blue-ish color
+            "btn"                                  // Tag for hover effects
+        ]);
+
+        backToHomeBtn.add([
+            text("Back to Home", { size: 32, font: "sinko" }), // Button label
+            anchor("center"),                                  // Center text in button
+            color(0, 0, 0)                                     // Black text
+        ]);
+
+        backToHomeBtn.onClick(() => go("home"));              // Navigate to "home" scene on click
+
+        // Add "Restart" button
+        const restartBtn = add([
+            rect(240, 60, { radius: 8 }),           // Button shape with rounded corners
+            pos(center().x, center().y + 200),     // Position further below
+            area(),                                // Enable click detection
+            anchor("center"),                      // Center the button
+            color(100, 200, 100),                  // Green-ish color
+            "btn"                                  // Tag for hover effects
+        ]);
+
+        restartBtn.add([
+            text("Restart", { size: 32, font: "sinko" }), // Button label
+            anchor("center"),                             // Center text in button
+            color(0, 0, 0)                                // Black text
+        ]);
+
+        restartBtn.onClick(() => go("fight"));           // Restart "fight" scene on click
+
+        AI.trainAI(); // Train AI after match
+    }
+
+    const countInterval = setInterval(() => {
+        if (count.timeLeft === 0) {
+            clearInterval(countInterval)
+            declareWinner(winningText, player1, player2)
+            gameOver = true
+    
+            return
+        }
+        count.timeLeft--
+        count.text = count.timeLeft
+    }, 1000)
+
+    const player1HealthContainer = add([
+        rect(500, 70),
+        area(),
+        outline(8, WHITE),
+        pos(90, 20),
+        color(200,0,0)
+       ])
+       
+    const player1HealthBar = player1HealthContainer.add([
+        rect(498, 65),
+        color(0,180,0),
+        pos(498, 70 - 2.5),
+        rotate(180)
+    ])
+
+    player1.onCollide(player2.id + "attackHitbox", () => {
+        if (gameOver) return;
+        if (player1.health !== 0) {
+            console.log("Player 1 hit by Player 2! Health:", player1.health, "Position:", player1.pos);
+            player1.health -= 50;
+
+            // change health container
+            tween(player1HealthBar.width, player1.health, 1, (val) => {
+                player1HealthBar.width = val;
+            }, easings.easeOutSine);
+
+            // being attacked indicator
+            player1.color = rgb(255, 0, 0);
+            wait(0.3, () => {
+                player1.color = rgb(255, 255, 255); // This will be fixed later
+                console.log("Player 1 flash reset");
+            });
+
+            // attack sound
+            if (isSoundLoaded) {
+                play("character-attack", {
+                    loop: false,
+                    volume: 0.5
+                });
+            } else {
+                console.log("Sound not loaded yet, retrying...");
+                onLoad(() => {
+                    play("character-attack", {
+                        loop: false,
+                        volume: 0.5
+                    });
+                });
+            }
+
+        }
+        if (player1.health === 0) {
+            console.log("Player 1 defeated!");
+            clearInterval(countInterval);
+            declareWinner(winningText, player1, player2);
+            gameOver = true;
+        }
+    });
+
+    const player2HealthContainer = add([
+        rect(500, 70),
+        area(),
+        outline(8, WHITE),
+        pos(690, 20),
+        color(200,0,0)
+    ])
+       
+    const player2HealthBar = player2HealthContainer.add([
+        rect(498, 65),
+        color(0,180,0),
+        pos(2.5, 2.5),
+    ])
+    
+    player2.onCollide(player1.id + "attackHitbox", () => {
+        if (gameOver) return;
+        if (player2.health !== 0) {
+            console.log("Player 2 hit by Player 1! Health:", player2.health, "Position:", player2.pos);
+            player2.health -= 50;
+            player2.color = rgb(255, 0, 0);
+
+            // change health container
+            tween(player2HealthBar.width, player2.health, 1, (val) => {
+                player2HealthBar.width = val;
+            }, easings.easeOutSine);
+
+            // being attacked effect
+            wait(0.3, () => {
+                player2.color = rgb(255, 255, 255); // This will be fixed later
+                console.log("Player 2 flash reset");
+            });
+
+            // attack sound
+            if (isSoundLoaded) {
+                play("character-attack", {
+                    loop: false,
+                    volume: 0.5
+                });
+            } else {
+                console.log("Sound not loaded yet, retrying...");
+                onLoad(() => {
+                    play("character-attack", {
+                        loop: false,
+                        volume: 0.5
+                    });
+                });
+            }
+        }
+        if (player2.health === 0) {
+            console.log("Player 2 defeated!");
+            clearInterval(countInterval);
+            declareWinner(winningText, player1, player2);
+            gameOver = true;
+        }
+    });
+})
+
+
+// Load AI model and start game
+AI.loadAI();
 go("home");

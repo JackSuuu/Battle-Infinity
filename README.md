@@ -11,6 +11,9 @@ Battle Infinity is a refined version of the Punk Battle game developed using the
 - [Battle Infinity](#battle-infinity)
   - [Table of Contents](#table-of-contents)
   - [About the Project](#about-the-project)
+    - [Neural Network](#neural-network)
+      - [How AI works?](#how-ai-works)
+      - [Observation](#observation)
   - [Features](#features)
   - [Built With](#built-with)
   - [Getting Started](#getting-started)
@@ -26,6 +29,31 @@ Battle Infinity is a refined version of the Punk Battle game developed using the
 
 **Punk Battle Refine** is an iteration of the original Punk Battle game aimed at delivering a more engaging and visually captivating experience. Built entirely in JavaScript using Kaboom.js, the game leverages modern web technologies to bring fast-paced, arcade-style action directly to your browser.
 
+The game integrate a AI reinforcement learning neural network to predict the action for second player.
+
+### Neural Network
+
+**Key Components:**
+
+- Network: Configured for 9 inputs (game state) and 4 outputs (actions).
+- trainingData: Stores input-output pairs globally within ai.js.
+- loadAI: Loads saved model at game start.
+- saveAI: Saves model after training.
+- trainAI: Trains on collected data, limiting to 1000 samples.
+- collectData: Adds player1 state and actions to trainingData.
+- predictAction: Outputs AI actions for player2 based on game state.
+- Export: Uses window.AI to make functions accessible to main.js(avoids ES module complexity in browsers).
+
+#### How AI works?
+
+- First match: AI may be inactive (untrained).
+- After match: Training runs (check console).
+- Next match: AI mimics player1 (e.g., moves toward you).
+
+#### Observation
+
+> At the outset of the game, the AI exhibits relatively unsophisticated behavior, often failing to initiate any attacks. However, as the game progresses, it incrementally learns and adapts to the player's actions, resulting in increasingly rapid and precise responses. Notably, by the third and fourth games, the AI demonstrates a marked improvement in strategic behavior, reflecting a significant enhancement in its decision-making capabilities.
+
 ---
 
 ## Features
@@ -34,12 +62,14 @@ Battle Infinity is a refined version of the Punk Battle game developed using the
 - **Stylish Visuals:** Updated graphics and animations that immerse players in a cyberpunk-inspired world.
 - **Responsive Design:** Optimized for various screen sizes, ensuring accessibility on both desktop and mobile devices.
 - **Easy-to-Run:** Straightforward installation and setup process, ready to play out-of-the-box.
+- **AI Neural Net Control:** Implement a neural network based AI opponent mechanism
 
 ---
 
 ## Built With
 
 - [Kaboom.js](https://kaboomjs.com/) – A JavaScript game programming library.
+- [Brain.js](https://brain.js.org/#/) - A JavaScript Neural Network Engine
 - HTML/CSS/JavaScript – Core technologies used for building and styling the game.
 
 ---
