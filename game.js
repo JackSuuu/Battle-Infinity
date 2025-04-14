@@ -8,6 +8,9 @@ kaboom({
 // Global variable to track control mode
 let useAIControl = true; // Default to AI control
 
+// LOAD FONT
+loadFont("digital_glitch", "assets/font/ThingsDigitalRegular-BWedn.ttf")
+
 // LOAD SOUND
 // At the top, with other globals
 let isSoundLoaded = false;
@@ -247,28 +250,42 @@ scene("home", () => {
     const textHeight = 100; // Approximate height for the text
     const padding = 20; // Extra space around the text for the background
 
-    const backgroundRect = add([
-        rect(textWidth + padding * 10, textHeight + padding * 2, { radius: 8 }), // Rectangle with rounded corners
-        pos(center().x, 150),                                                  // Same position as text
-        anchor("center"),                                                     // Center the rectangle
-        color(255, 255, 0),
-        z(0),                                                                 // Lower layer (behind text)
-    ]);
+    // const backgroundRect = add([
+    //     rect(textWidth + padding * 10, textHeight + padding * 2, { radius: 8 }), // Rectangle with rounded corners
+    //     pos(center().x, 150),                                                  // Same position as text
+    //     anchor("center"),                                                     // Center the rectangle
+    //     color(255, 255, 0),
+    //     z(0),                                                                 // Lower layer (behind text)
+    // ]);
 
-    // Title
+    // Title with 90s synthwave style
     add([
         text("Battle Infinity", { 
-            size: 90,
-            font: "digital",
-            styles: {
-                outline: 4,
-                outlineColor: rgb(255, 255, 255),
-                stroke: { width: 4, color: rgb(0, 0, 0) },
-            }
+            size: 65,
+            font: "digital_glitch", // Modern font
         }),
         pos(center().x, 150),
         anchor("center"),
-        color(0, 0, 0),
+        color(255, 255, 0), // Yellow color
+        z(1)
+    ]);
+
+    // Add a glowing effect behind the title
+    add([
+        rect(700, 150, { radius: 20 }), // Large glowing rectangle
+        pos(center().x, 150),
+        anchor("center"),
+        color(255, 0, 255), // Neon pink glow
+        opacity(0.3), // Semi-transparent
+        z(0)
+    ]);
+
+    // Add a gradient bar below the title
+    add([
+        rect(600, 10),
+        pos(center().x, 200),
+        anchor("center"),
+        color(0, 255, 255), // Cyan gradient bar
         z(1)
     ]);
 
@@ -284,8 +301,8 @@ scene("home", () => {
 
     startBtn.add([
         text("Start Game", { 
-            size: 32,
-            font: "sinko"
+            size: 20,
+            font: "digital_glitch"
         }),
         anchor("center"),
         color(0, 204, 255)
@@ -303,8 +320,8 @@ scene("home", () => {
 
     instructionsBtn.add([
         text("How to Play", { 
-            size: 32,
-            font: "sinko"
+            size: 20,
+            font: "digital_glitch"
         }),
         anchor("center"),
         color(255, 0, 255)
@@ -423,7 +440,7 @@ scene("home", () => {
     ]);
 
     const controlModeText = controlModeBtn.add([
-        text(useAIControl ? "AI Control" : "Player 2 Control", { size: 32, font: "sinko" }),
+        text(useAIControl ? "AI Control" : "Player 2 Control", { size: 20, font: "digital_glitch" }),
         anchor("center"),
         color(0, 0, 0)
     ]);
@@ -481,8 +498,8 @@ scene("character_select", () => {
     // Title
     add([
         text("Select Your Character", { 
-            size: 64,
-            font: "digital",
+            size: 50,
+            font: "digital_glitch",
             styles: {
                 outline: 4,
                 outlineColor: rgb(255, 255, 255),
