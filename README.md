@@ -11,7 +11,7 @@ Battle Infinity is a refined version of the Punk Battle game developed using the
 - [Battle Infinity](#battle-infinity)
   - [Table of Contents](#table-of-contents)
   - [About the Project](#about-the-project)
-    - [Neural Network](#neural-network)
+    - [🧬 Neural Network (Reinforcement Learning)](#-neural-network-reinforcement-learning)
       - [How AI works?](#how-ai-works)
       - [Observation](#observation)
   - [Features](#features)
@@ -31,12 +31,12 @@ Battle Infinity is a refined version of the Punk Battle game developed using the
 
 The game integrate a AI reinforcement learning neural network to predict the action for second player.
 
-### Neural Network
+### 🧬 Neural Network (Reinforcement Learning)
 
 **Key Components:**
 
 - **Network:** Configured for 9 inputs (game state) and 4 outputs (actions).
-- **trainingData:** Stores input-output pairs globally within ai.js.
+- **trainingData:** Stores input-output pairs globally within `neural.js`.
 - **loadAI:** Loads saved model at game start.
 - **saveAI:** Saves model after training.
 - **trainAI:** Trains on collected data, limiting to 1000 samples.
